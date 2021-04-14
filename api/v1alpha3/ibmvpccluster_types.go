@@ -58,9 +58,10 @@ type IBMVPCClusterStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 	VPC VPC `json:"vpc,omitempty"`
 	// Bastion Instance `json:"bastion,omitempty"`
-	Ready       bool        `json:"ready"`
-	Subnet      Subnet      `json:"subnet,omitempty"`
-	APIEndpoint APIEndpoint `json:"apiEndpoint,omitempty"`
+	Ready       bool                 `json:"ready"`
+	Subnet      Subnet               `json:"subnet,omitempty"`
+	APIEndpoint APIEndpoint          `json:"apiEndpoint,omitempty"`
+	Conditions  clusterv1.Conditions `json:"conditions,omitempty"`
 }
 
 type VPC struct {
@@ -91,6 +92,14 @@ type IBMVPCClusterList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []IBMVPCCluster `json:"items"`
+}
+
+func (r *IBMVPCCluster) GetConditions() clusterv1.Conditions {
+	return r.Status.Conditions
+}
+
+func (r *IBMVPCCluster) SetConditions(conditions clusterv1.Conditions) {
+	r.Status.Conditions = conditions
 }
 
 func init() {

@@ -19,6 +19,7 @@ package v1alpha3
 import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -76,6 +77,9 @@ type IBMVPCMachineStatus struct {
 	// InstanceStatus is the status of the GCP instance for this machine.
 	// +optional
 	InstanceStatus string `json:"instanceState,omitempty"`
+	// Conditions defines current service state of the IBMVPCMachine.
+	// +optional
+	Conditions clusterv1.Conditions `json:"conditions,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -100,6 +104,14 @@ type IBMVPCMachineList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []IBMVPCMachine `json:"items"`
+}
+
+func (r *IBMVPCMachine) GetConditions() clusterv1.Conditions {
+	return r.Status.Conditions
+}
+
+func (r *IBMVPCMachine) SetConditions(conditions clusterv1.Conditions) {
+	r.Status.Conditions = conditions
 }
 
 func init() {

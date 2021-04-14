@@ -33,6 +33,7 @@ import (
 	"k8s.io/utils/pointer"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/util"
+	"sigs.k8s.io/cluster-api/util/conditions"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -56,6 +57,11 @@ func (r *IBMVPCMachineReconciler) Reconcile(req ctrl.Request) (_ ctrl.Result, re
 	// Fetch the GCPMachine instance.
 
 	ibmVpcMachine := &infrastructurev1alpha3.IBMVPCMachine{}
+	conditions.MarkTrue(ibmVpcMachine, infrastructurev1alpha3.MachineAPIServerPodHealthyCondition)
+	conditions.MarkTrue(ibmVpcMachine, infrastructurev1alpha3.MachineControllerManagerPodHealthyCondition)
+	conditions.MarkTrue(ibmVpcMachine, infrastructurev1alpha3.MachineSchedulerPodHealthyCondition)
+	conditions.MarkTrue(ibmVpcMachine, infrastructurev1alpha3.MachineEtcdPodHealthyCondition)
+	conditions.MarkTrue(ibmVpcMachine, infrastructurev1alpha3.MachineEtcdMemberHealthyCondition)
 	err := r.Get(ctx, req.NamespacedName, ibmVpcMachine)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
@@ -176,6 +182,13 @@ func (r *IBMVPCMachineReconciler) reconcileNormal(ctx context.Context, machineSc
 				Type:    v1.NodeExternalIP,
 				Address: *floatingIP.Address,
 			})
+			/*
+				conditions.MarkTrue(machineScope.IBMVPCMachine, infrastructurev1alpha3.MachineAPIServerPodHealthyCondition)
+				conditions.MarkTrue(machineScope.IBMVPCMachine, infrastructurev1alpha3.MachineControllerManagerPodHealthyCondition)
+				conditions.MarkTrue(machineScope.IBMVPCMachine, infrastructurev1alpha3.MachineSchedulerPodHealthyCondition)
+				conditions.MarkTrue(machineScope.IBMVPCMachine, infrastructurev1alpha3.MachineEtcdPodHealthyCondition)
+				conditions.MarkTrue(machineScope.IBMVPCMachine, infrastructurev1alpha3.MachineEtcdMemberHealthyCondition)
+			*/
 		}
 		machineScope.IBMVPCMachine.Status.Ready = true
 		log.Info(*instance.ID)
